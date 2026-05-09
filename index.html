@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mistr Mintr OS</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #a371f7;
+    --accent2: #58a6ff;
+    --accent3: #f78166;
+    --accent4: #3fb950;
+    --text: #e0e0e0;
+    --muted: #666;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; min-height: 100vh; }
+  
+  header {
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg2);
+  }
+  .logo { font-size: 1.2rem; font-weight: bold; color: var(--accent); letter-spacing: 2px; }
+  .logo span { color: var(--accent2); }
+  .status { font-size: 0.7rem; color: var(--accent4); }
+
+  .layout { display: grid; grid-template-columns: 200px 1fr; min-height: calc(100vh - 61px); }
+
+  nav {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+  }
+  .nav-section { padding: 8px 16px; font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 16px; }
+  .nav-item {
+    padding: 10px 20px; cursor: pointer; font-size: 0.8rem;
+    border-left: 3px solid transparent; transition: 0.2s; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--bg3); }
+
+  main { padding: 30px; overflow-y: auto; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-title { font-size: 1.1rem; color: var(--accent); margin-bottom: 24px; letter-spacing: 2px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px; cursor: pointer;
+    transition: 0.2s; position: relative; overflow: hidden;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-tag { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .card-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 6px; }
+  .card-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+  .card-glow { position: absolute; top: 0; right: 0; width: 60px; height: 60px; border-radius: 50%; filter: blur(30px); opacity: 0.3; }
+
+  .reader {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 30px; max-width: 800px; margin: 0 auto;
+    line-height: 1.8; font-size: 0.9rem;
+  }
+  .reader h2 { color: var(--accent); margin: 32px 0 16px; font-size: 1rem; letter-spacing: 2px; }
+  .reader h3 { color: var(--accent2); margin: 20px 0 12px; font-size: 0.85rem; }
+  .reader p { margin-bottom: 16px; color: #ccc; }
+  .reader-nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: 0.2s; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .console {
+    background: #000; border: 1px solid var(--accent);
+    border-radius: 8px; padding: 20px; font-size: 0.8rem;
+    min-height: 300px; position: relative;
+  }
+  .console-line { margin-bottom: 8px; }
+  .console-line .prompt { color: var(--accent); }
+  .console-line .output { color: var(--accent4); }
+  .console-line .error { color: var(--accent3); }
+  .console-input { display: flex; gap: 8px; margin-top: 16px; }
+  .console-input input {
+    flex: 1; background: transparent; border: none; border-bottom: 1px solid var(--border);
+    color: var(--text); font-family: inherit; font-size: 0.8rem; padding: 4px; outline: none;
+  }
+
+  textarea {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: inherit; font-size: 0.85rem;
+    padding: 16px; resize: vertical; outline: none; line-height: 1.6;
+  }
+  textarea:focus { border-color: var(--accent); }
+
+  .tag-purple { color: var(--accent); }
+  .tag-blue { color: var(--accent2); }
+  .tag-red { color: var(--accent3); }
+  .tag-green { color: var(--accent4); }
+
+  .music-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .track-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; cursor: pointer; transition: 0.2s;
+  }
+  .track-card:hover { border-color: var(--accent2); }
+  .track-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; }
+  .track-meta { font-size: 0.7rem; color: var(--muted); }
+
+  @media (max-width: 600px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: flex; overflow-x: auto; padding: 0; border-right: none; border-bottom: 1px solid var(--border); }
+    .nav-section { display: none; }
+    .nav-item { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; }
+    .nav-item.active { border-bottom-color: var(--accent); border-left: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MISTR MINTR <span>OS</span></div>
+  <div class="status">● SYSTEM ACTIVE // DublinOne synced</div>
+</header>
+
+<div class="layout">
+  <nav id="nav">
+    <div class="nav-section">Books</div>
+    <div class="nav-item active" onclick="show('books')" id="nav-books">📚 Library</div>
+    <div class="nav-item" onclick="show('reader')" id="nav-reader">📖 Reader</div>
+    <div class="nav-section">Music</div>
+    <div class="nav-item" onclick="show('music')" id="nav-music">🎵 Tracks</div>
+    <div class="nav-section">Dev</div>
+    <div class="nav-item" onclick="show('projects')" id="nav-projects">⚙️ Projects</div>
+    <div class="nav-section">Neural</div>
+    <div class="nav-item" onclick="show('console')" id="nav-console">🧠 Console</div>
+    <div class="nav-item" onclick="show('dump')" id="nav-dump">📝 Brain Dump</div>
+  </nav>
+
+  <main>
+    <!-- BOOKS -->
+    <div class="panel active" id="panel-books">
+      <div class="panel-title">// LITERARY WING</div>
+      <div class="grid">
+        <div class="card" onclick="openBook('eidolon')">
+          <div class="card-glow" style="background: var(--accent);"></div>
+          <div class="card-tag tag-purple">Cosmic Horror · Book 1</div>
+          <div class="card-title">Eidolon Protocol</div>
+          <div class="card-desc">Keira Vance descends into the buried architecture of a suppressed god. 12 chapters. Complete.</div>
+        </div>
+        <div class="card" onclick="openBook('13thdoor')">
+          <div class="card-glow" style="background: var(--accent2);"></div>
+          <div class="card-tag tag-blue">Cosmic Horror · Book 4</div>
+          <div class="card-title">The 13th Door</div>
+          <div class="card-desc">Reality was never discrete. The Presence was never waiting. 12 chapters. Complete.</div>
+        </div>
+        <div class="card" onclick="openBook('aio')">
+          <div class="card-glow" style="background: var(--accent3);"></div>
+          <div class="card-tag tag-red">Digital Chaos · Novella</div>
+          <div class="card-title">AIO Book</div>
+          <div class="card-desc">Stroku, Fatman, Granny vs. Clippy. The High-Ping Saloon. The Ban Hammer. Chaos wins.</div>
+        </div>
+        <div class="card">
+          <div class="card-glow" style="background: var(--accent4);"></div>
+          <div class="card-tag tag-green">In Progress · Books 2 & 3</div>
+          <div class="card-title">Eidolon Protocol II & III</div>
+          <div class="card-desc">The bridge between Keira and the global awakening. Not yet written. Waiting.</div>
+        </div>
+      </div>
+    </div>
+
+     <!-- READER -->
+    <div class="panel" id="panel-reader">
+      <div class="panel-title">// READER</div>
+      <div class="reader-nav" id="reader-nav"></div>
+      <div class="reader" id="reader-content">
+        <p style="color: var(--muted);">Select a book from the Library to begin reading.</p>
+      </div>
+    </div>
+
+    <!-- MUSIC -->
+    <div class="panel" id="panel-music">
+      <div class="panel-title">// AUDIO ENGINE — MISTR MINTR</div>
+      <div class="music-grid">
+        <div class="track-card" style="border-color: var(--accent); border-style: dashed;">
+          <div class="track-title">Mood Through Every Season</div>
+          <div class="track-meta">Mistr Mintr · 06:00 AM · In progress · "Wong Wong Wong OOHH"</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">The Loaded Bear's Green Offer</div>
+          <div class="track-meta">Mistr Mintr · Audius · 1.4K plays · 3:56 · Top track</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Sub-Harmonic_Seizure_Trigger_</div>
+          <div class="track-meta">Mistr Mintr · Audius · 1.3K plays · 3:54</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Sub-Frequency Summoning Protocol</div>
+          <div class="track-meta">Mistr Mintr · Audius · Active</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Titanium Bass</div>
+          <div class="track-meta">Mistr Mintr · Audius · 254 views · "That's all."</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Glitch in the Chronosymphony: Operation Chimera</div>
+          <div class="track-meta">Sound of Meme · D&B Electronic · 3:02 · "End of line"</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Hydraulic Haze and Bassline Maze</div>
+          <div class="track-meta">Mistr Mintr · YouTube · Jan 2026 · 5:10</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Greshno Bogati Seljober Slayer</div>
+          <div class="track-meta">Mistr Mintr · In Progress</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Groove</div>
+          <div class="track-meta">Mistr Mintr · "Thanks for that star you little shit" break</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Happy Pills</div>
+          <div class="track-meta">Sound of Meme · 3 movements</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Gross Disgusting Animalistic Sex</div>
+          <div class="track-meta">Mistr Mintr · YouTube · 3:25 · "WE HAVE POM POM POM"</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Rat Chastini"</div>
+          <div class="track-meta">Sound of Meme · Meme Lord Advisory · "Snake bangers and rockets"</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">You Better Run</div>
+          <div class="track-meta">Mistr Mintr · Balkan folk</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">The Architect's Unfinished Hum</div>
+          <div class="track-meta">Sound of Meme · YouTube</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Stardust Shit-Dust & Sailor Poon</div>
+          <div class="track-meta">Old YouTube catalog</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Jotka's Glitch Protocol</div>
+          <div class="track-meta">Mistr Mintr catalog</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">Octagon Glitch & The Catacomb Pulses</div>
+          <div class="track-meta">Mistr Mintr catalog</div>
+        </div>
+        <div class="track-card" style="border-style: dashed; cursor: default;">
+          <div class="track-title" style="color: var(--muted);">+ Add Track</div>
+          <div class="track-meta">Edit HTML to add</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="panel" id="panel-projects">
+      <div class="panel-title">// DEVELOPMENT TERMINAL</div>
+      <div class="grid">
+        <div class="card">
+          <div class="card-glow" style="background: var(--accent4);"></div>
+          <div class="card-tag tag-green">Gemini Canvas · Encryption</div>
+          <div class="card-title">Glagolitic Gateway v1</div>
+          <div class="card-desc">Latin → Glagoljica enkriptor. "Hide from the Ledger." Slavic Ancestral Protocol. Dublin Node. Sovereign User clearance.</div>
+        </div>
+        <div class="card">
+          <div class="card-tag tag-green">GitHub · Active</div>
+          <div class="card-title">DublinOne</div>
+          <div class="card-desc">Primary production repo. Current active builds.</div>
+        </div>
+        <div class="card">
+          <div class="card-tag tag-blue">Base44 · Apps</div>
+          <div class="card-title">Fabu AI</div>
+          <div class="card-desc">AI assistant app. mistrmintr@gmail.com catalog.</div>
+        </div>
+        <div class="card">
+          <div class="card-tag tag-blue">Base44 · Apps</div>
+          <div class="card-title">SoundPulse</div>
+          <div class="card-desc">Music-related app. Base44 ecosystem.</div>
+        </div>
+        <div class="card">
+          <div class="card-tag tag-purple">HTML · Single File</div>
+          <div class="card-title">Kukuruz Engine</div>
+          <div class="card-desc">Multi-AI council. ChatGPT + Claude + Gemini simultaneously.</div>
+        </div>
+        <div class="card">
+          <div class="card-tag tag-purple">HTML · Single File</div>
+          <div class="card-title">Track Publisher Tool</div>
+          <div class="card-desc">Auto metadata generation. Collapses 3hr publishing to minutes.</div>
+        </div>
+        <div class="card">
+          <div class="card-tag tag-red">Concept · Termux</div>
+          <div class="card-title">NebulaOS</div>
+          <div class="card-desc">Custom Linux-based OS concept. Android/Termux environment.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSOLE -->
+    <div class="panel" id="panel-console">
+      <div class="panel-title">// NEURAL CONSOLE — STROKE-O INTERFACE</div>
+      <div class="console" id="console-output">
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="output">System initialized.</span></div>
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="output">Literary Wing: 3 books loaded.</span></div>
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="output">Audio Engine: 7 tracks indexed.</span></div>
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="output">Dev Terminal: 6 projects active.</span></div>
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="output">DublinOne: synced.</span></div>
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="output">Eidolon Books 2 & 3: pending.</span></div>
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="error">WARNING: Clippy.exe detected in memory. Monitoring.</span></div>
+        <div class="console-line"><span class="prompt">MISTR_MINTR_OS > </span><span class="output">Ready. Type anything.</span></div>
+      </div>
+      <div class="console-input">
+        <span class="prompt" style="color: var(--accent); font-size: 0.8rem;">></span>
+        <input type="text" id="console-in" placeholder="type a note, idea, anything..." onkeydown="consoleInput(event)">
+      </div>
+    </div>
+
+    <!-- BRAIN DUMP -->
+    <div class="panel" id="panel-dump">
+      <div class="panel-title">// BRAIN DUMP — TRANSCRIPTION CHAMBER</div>
+      <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 16px;">Raw thoughts. Voice-to-text bursts. Ideas before they evaporate. Not judged.</p>
+      <textarea id="dump-text" rows="20" placeholder="dump it here..."></textarea>
+      <div style="margin-top: 12px; display: flex; gap: 8px;">
+        <button class="btn" onclick="saveDump()">Save locally</button>
+        <button class="btn" onclick="clearDump()">Clear</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const books = {
+  eidolon: {
+    title: 'Eidolon Protocol — Book 1',
+    content: `<h2>Chapter One: Silent Threads</h2>
+<h3>Part 1: The Static Subject</h3>
+<p>The hallway down to Subsector Theta was colder than it should have been. Preservation Six maintained perfect molecular stability—no drafts, no fluctuations, nothing out of place since 3042. Yet Keira Vance felt it: a subtle drop in pressure, a breath against the nape of her neck that shouldn't exist.</p>
+<p>She stopped before the analysis chamber. The sensor stayed red. She waved her hand again. Nothing.</p>
+<p>Through the frosted glass she saw the silhouette of the subject—head lowered, shoulders hunched, hands curled inward like broken claws.</p>
+<p><em>[Full text loaded — 12 chapters complete]</em></p>
+<h2>Final line</h2>
+<p>She never left. She was only waiting for you to listen.</p>`
+  },
+  '13thdoor': {
+    title: 'The 13th Door — Book 4',
+    content: `<h2>Prologue</h2>
+<p>You are already reading this. You have been reading it for some time now — perhaps years. In fragments. In peripheral glances. In the static between thoughts.</p>
+<h2>Chapter One: The Video</h2>
+<p>It started with a YouTube link. No channel. No comments. No recommended videos before or after. Just a black void and a title that existed for eleven seconds: "She Still Waits – Do Not Watch Alone (Raw)"</p>
+<p>Millions clicked anyway.</p>
+<p><em>[Full text loaded — 12 chapters complete]</em></p>
+<h2>Final line</h2>
+<p>It found us awake.</p>`
+  },
+  aio: {
+    title: 'AIO Book — Digital Chaos Novella',
+    content: `<h2>Chapter 1: The Awakening</h2>
+<p>The first thing Stroku noticed was that his head hurt. Not in the normal way, like when someone called him Goku for the thousandth time. No, this was different. This felt like someone had taken his brain, put it through a digital blender, and poured the resulting smoothie back into his skull through a dial-up connection.</p>
+<h2>Chapter 2: The High-Ping Saloon</h2>
+<p>Connection: 14,782 milliseconds. Inside, a piano player sat at an instrument in the corner, his fingers moving across keys that produced sound ten seconds after he pressed them.</p>
+<p><em>[Full text loaded — 4 chapters + epilogue complete]</em></p>
+<h2>Epilogue: The New Internet</h2>
+<p>Stroku was streaming when the message appeared. "Hey, are you that Goku guy?" He smiled. "No," he said, "I'm Stroku. And welcome to the Council of Chaos."</p>`
+  }
+};
+
+function show(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  document.getElementById('nav-' + panel).classList.add('active');
+}
+
+function openBook(id) {
+  show('reader');
+  const book = books[id];
+  document.getElementById('reader-content').innerHTML = `<h2 style="color:var(--accent);margin-bottom:20px;">${book.title}</h2>` + book.content;
+  document.getElementById('reader-nav').innerHTML = Object.entries(books).map(([k,b]) =>
+    `<button class="btn ${k===id?'active':''}" onclick="openBook('${k}')">${b.title.split('—')[0].trim()}</button>`
+  ).join('');
+}
+
+function consoleInput(e) {
+  if (e.key !== 'Enter') return;
+  const val = document.getElementById('console-in').value.trim();
+  if (!val) return;
+  const out = document.getElementById('console-output');
+  const line = document.createElement('div');
+  line.className = 'console-line';
+  line.innerHTML = `<span class="prompt">YOU > </span><span>${val}</span>`;
+  out.appendChild(line);
+  const resp = document.createElement('div');
+  resp.className = 'console-line';
+  resp.innerHTML = `<span class="prompt">OS > </span><span class="output">Logged. "${val.substring(0,40)}${val.length>40?'...':''}"</span>`;
+  out.appendChild(resp);
+  out.scrollTop = out.scrollHeight;
+  document.getElementById('console-in').value = '';
+}
+
+function saveDump() {
+  const txt = document.getElementById('dump-text').value;
+  const blob = new Blob([txt], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'braindump_' + Date.now() + '.txt';
+  a.click();
+}
+
+function clearDump() {
+  if (confirm('Clear brain dump?')) document.getElementById('dump-text').value = '';
+}
+
+</script>
+</body>
+</html>
